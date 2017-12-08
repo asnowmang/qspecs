@@ -1,7 +1,10 @@
 #! /bin/sh
-## Version 0.1.2
+## Version 0.1.3
+## This script is ISC licensed
 ## asnowmang
+
 ## Currently supports OpenBSD and OS X
+
 
 
 # OS Detection
@@ -27,6 +30,9 @@ case $OS in
     OpenBSD)
 	model=$(sysctl -n hw.product)
 	;;
+    Linux)
+	model=$(cat /proc/cpuinfo | sed 's/.*: //' | sed -n 2p)
+	;;
 esac
 
 
@@ -34,10 +40,13 @@ esac
 case $OS in
     Darwin)
 	CPU=$(sysctl -n machdep.cpu.brand_string | sed 's/@.*//')
-	clock="@ $(dc -e $(sysctl -n hw.cpufrequency)d1000d*/p)MHz"
+	clock="@ $(dc -e $(sysctl -n hw.cpufrequency)d1000d*/n[MHz]p)"
 	;;
     OpenBSD)
 	CPU=$(sysctl -n hw.model)
+	;;
+    Linux)
+	CPU=$(cat /proc/cpuinfo | sed 's/.*: //' | sed -n 1p)
 	;;
 esac
 
@@ -46,7 +55,7 @@ esac
 case $OS in
     Darwin)
 	tempmon=/Applications/TemperatureMonitor.app/Contents/MacOS/tempmonitor
-	temp=$(echo "$($tempmon -a -l | grep "A DIODE")" | sed 's/.*://g;s/C/degC/;s/ //')
+	temp=$(echo "$($tempmon -a -l | grep "A DIODE")" | sed 's/.*: //g;s/C/°C/;s/ //')
 	;;
     OpenBSD)
 	CPUtemp=$(sysctl -n hw.sensors.cpu0.temp0 | sed 's/'.00'//')
@@ -62,6 +71,9 @@ case $OS in
     OpenBSD)
 	RAM=$(sysctl -n hw.physmem)
 	;;
+    Linux)
+	RAM=$(dc -e $(free | awk '{ print $2 }' | sed -n 2p)d1024*p)
+	;;
 esac
 
 
@@ -71,10 +83,22 @@ sto="0"
 p=$(df -k -l | wc -l | sed 's/ //g')
 until [[ $count = $p ]];
 do
-    count=$(echo "$count 1 +p" | dc)
+    count=$(dc -e "$count"d1+p)
     part=$(df -k -l | awk '{ print $2 }' | sed -n "$count"p)
-    sto=$(echo "$sto $part +p" | dc)
+    sto=$(dc -e "$sto"d"$part"+p)
 done
+t=$(echo $sto | wc -c | sed 's/ //g')
+case $t in
+    6 | 7)
+        sto=$(dc -e "$sto"d1024/n[MiB]p)
+        ;;
+    8 | 9 | 10)
+        sto=$(dc -e "$sto"d1024d*/n[GiB]p)
+        ;;
+    11 | 12 | 13) 
+	sto=$(dc -e "$sto"d1024dd**/n[TiB]p)
+	;;
+esac
 
 
 # OS
@@ -94,6 +118,9 @@ case $OS in
 	kern="XNU$(uname -v | sed 's#.*;##;s#/.*##;s#root:xnu-##')"
 	;;
     OpenBSD)
+	kern=$(uname -sr)
+	;;
+    Linux)
 	kern=$(uname -sr)
 	;;
 esac
@@ -129,7 +156,7 @@ echo "\n Manufacturer:\t $man"
 echo " Model:\t\t $model"
 
 # CPU model & clock
-echo " CPU:\t\t $(echo $CPU | sed 's/CPU //;s/(TM)//;s/(R)//') "$clock""
+echo " CPU:\t\t $(echo $CPU | sed 's/CPU //;s/(TM)//;s/(R)//') $clock"
 
 # CPU temp
 echo " CPU Temp:\t $temp"
@@ -138,30 +165,7 @@ echo " CPU Temp:\t $temp"
 echo " RAM:\t\t $(dc -e "$RAM"d1024d*/n[MiB]p)"
 
 # Storage
-t=$(echo $sto | wc -c | sed 's/ //g')
-case $t in
-    6)
-	echo " Storage:\t $(dc -e "$sto"d1024/n[MiB]p)"
-	;;
-    7)
-        echo " Storage:\t $(dc -e "$sto"d1024/n[MiB]p)"
-        ;;
-    8)
-	echo " Storage:\t $(dc -e "$sto"d1024d*/n[GiB]p)"
-	;;
-    9)
-	echo " Storage:\t $(dc -e "$sto"d1024d*/n[GiB]p)"
-	;;
-    10)
-        echo " Storage:\t $(dc -e "$sto"d1024d*/n[GiB]p)"
-        ;;
-    11)
-        echo " Storage:\t $(dc -e "$sto"d1024dd**/n[TiB]p)"
-        ;;
-    12)
-	echo " Storage:\t $(dc -e "$sto"d1024ddd***/n[TiB]p)"
-	;;
-esac
+echo " Storage:\t $sto"
 
 # OS
 echo " OS:\t\t $OSV"
@@ -176,4 +180,4 @@ echo " Packages:\t $pkg"
 echo " Uptime:\t $up"
 
 # Shell
-echo " Shell:\t\t $s \n"
+echo " Shell:\t\t $s\n"
