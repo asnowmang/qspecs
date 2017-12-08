@@ -1,5 +1,7 @@
-#!/bin/sh 
-## OpenBSD specs program
+#!/bin/sh
+## Version 0.1.0
+## asnowmang
+## OpenBSD-only at the moment
 ##
 
 # Manufacturer
@@ -8,14 +10,19 @@ echo "Manufacturer:\t $(sysctl -n hw.vendor)"
 # Device model
 echo "Model:\t\t $(sysctl -n hw.product)"
 
-# CPU model
+# CPU model & clock
 echo "CPU:\t\t $(sysctl -n hw.model)" | sed 's/CPU //g;s/(TM)//g;s/(R)//g;s/@.*//g'
 
 # CPU temp
 echo "CPU temp:\t $(sysctl -n hw.sensors.cpu0.temp0 | sed 's/'.00'//g')"
 
-# Total RAM (MiB)
+# Total RAM (megabytes)
+#full dc form (need to figure out tab)
+#dc -e '[RAM: ]n'$(sysctl -n hw.physmem)d1048576/n'[MiB]p'
 echo "RAM:\t\t $(dc -e ''$(sysctl -n hw.physmem)d1048576/n'[MiB]p')"
+
+# Free RAM
+#sysctl hw.physmem hw.usermem | sed ':a;N;$!ba;s/\n/ /g' | tr -d '\n'
 
 # OS
 echo "OS:\t\t $(uname -srm)"
