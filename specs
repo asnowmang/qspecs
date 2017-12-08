@@ -1,37 +1,179 @@
-#!/bin/sh
-## Version 0.1.0
+#! /bin/sh
+## Version 0.1.2
 ## asnowmang
-## OpenBSD-only at the moment
-##
+## Currently supports OpenBSD and OS X
+
+
+# OS Detection
+OS=$(uname -s)
+
 
 # Manufacturer
-echo "Manufacturer:\t $(sysctl -n hw.vendor)"
+case $OS in
+    Darwin)
+	man="Apple, Inc."
+	;;
+    OpenBSD)
+	man=$(sysctl -n hw.vendor)
+	;;
+esac
+
 
 # Device model
-echo "Model:\t\t $(sysctl -n hw.product)"
+case $OS in
+    Darwin)
+	model=$(sysctl -n hw.model)
+	;;
+    OpenBSD)
+	model=$(sysctl -n hw.product)
+	;;
+esac
 
-# CPU model & clock
-echo "CPU:\t\t $(sysctl -n hw.model)" | sed 's/CPU //g;s/(TM)//g;s/(R)//g;s/@.*//g'
+
+# CPU model and clock
+case $OS in
+    Darwin)
+	CPU=$(sysctl -n machdep.cpu.brand_string | sed 's/@.*//')
+	clock="@ $(dc -e $(sysctl -n hw.cpufrequency)d1000d*/p)MHz"
+	;;
+    OpenBSD)
+	CPU=$(sysctl -n hw.model)
+	;;
+esac
+
 
 # CPU temp
-echo "CPU temp:\t $(sysctl -n hw.sensors.cpu0.temp0 | sed 's/'.00'//g')"
+case $OS in
+    Darwin)
+	tempmon=/Applications/TemperatureMonitor.app/Contents/MacOS/tempmonitor
+	temp=$(echo "$($tempmon -a -l | grep "A DIODE")" | sed 's/.*://g;s/C/degC/;s/ //')
+	;;
+    OpenBSD)
+	CPUtemp=$(sysctl -n hw.sensors.cpu0.temp0 | sed 's/'.00'//')
+	;;
+esac
 
-# Total RAM (megabytes)
-#full dc form (need to figure out tab)
-#dc -e '[RAM: ]n'$(sysctl -n hw.physmem)d1048576/n'[MiB]p'
-echo "RAM:\t\t $(dc -e ''$(sysctl -n hw.physmem)d1048576/n'[MiB]p')"
 
-# Free RAM
-#sysctl hw.physmem hw.usermem | sed ':a;N;$!ba;s/\n/ /g' | tr -d '\n'
+# RAM
+case $OS in
+    Darwin)
+	RAM=$(sysctl -n hw.memsize)
+	;;
+    OpenBSD)
+	RAM=$(sysctl -n hw.physmem)
+	;;
+esac
+
+
+# Storage
+count="1"
+sto="0"
+p=$(df -k -l | wc -l | sed 's/ //g')
+until [[ $count = $p ]];
+do
+    count=$(echo "$count 1 +p" | dc)
+    part=$(df -k -l | awk '{ print $2 }' | sed -n "$count"p)
+    sto=$(echo "$sto $part +p" | dc)
+done
+
 
 # OS
-echo "OS:\t\t $(uname -srm)"
+case $OS in
+    Darwin)
+	OSV="$(sw_vers -productName) $(sw_vers -productVersion) $(uname -p | sed 's/i386/x86_64/;s/powerpc/PowerPC/')"
+	;;
+    OpenBSD)
+	OSV=$(uname -srm)
+	;;
+esac
 
-# Uptime
-echo "Uptime:\t\t $(uptime | sed ';s/,.*//;s/^.*up //;')"
+
+# Kernel
+case $OS in
+    Darwin)
+	kern="XNU$(uname -v | sed 's#.*;##;s#/.*##;s#root:xnu-##')"
+	;;
+    OpenBSD)
+	kern=$(uname -sr)
+	;;
+esac
+
 
 # Packages
-echo "Packages:\t $(pkg_info | wc -l | sed 's/[^0-9]*//g')"
+case $OS in
+    Darwin)
+	pkg=$(dc -e $(pkgin list | wc -l)d$(brew list | wc -l | sed 's/ //g')+p)
+	;;
+    OpenBSD)
+	pkg=$(pkg_info | wc -l | sed 's/[^0-9]*//')
+	;;
+esac
+
+
+# Uptime
+up=$(uptime | sed ';s/,.*//;s/^.*up //;')
+
 
 # Shell
-echo "Shell:\t\t" $SHELL | sed 's#/bin/##g'
+s="$(basename $SHELL)"
+
+
+
+########
+# Output
+ 
+# Manufacturer
+echo "\n Manufacturer:\t $man"
+
+# Model
+echo " Model:\t\t $model"
+
+# CPU model & clock
+echo " CPU:\t\t $(echo $CPU | sed 's/CPU //;s/(TM)//;s/(R)//') "$clock""
+
+# CPU temp
+echo " CPU Temp:\t $temp"
+
+# RAM
+echo " RAM:\t\t $(dc -e "$RAM"d1024d*/n[MiB]p)"
+
+# Storage
+t=$(echo $sto | wc -c | sed 's/ //g')
+case $t in
+    6)
+	echo " Storage:\t $(dc -e "$sto"d1024/n[MiB]p)"
+	;;
+    7)
+        echo " Storage:\t $(dc -e "$sto"d1024/n[MiB]p)"
+        ;;
+    8)
+	echo " Storage:\t $(dc -e "$sto"d1024d*/n[GiB]p)"
+	;;
+    9)
+	echo " Storage:\t $(dc -e "$sto"d1024d*/n[GiB]p)"
+	;;
+    10)
+        echo " Storage:\t $(dc -e "$sto"d1024d*/n[GiB]p)"
+        ;;
+    11)
+        echo " Storage:\t $(dc -e "$sto"d1024dd**/n[TiB]p)"
+        ;;
+    12)
+	echo " Storage:\t $(dc -e "$sto"d1024ddd***/n[TiB]p)"
+	;;
+esac
+
+# OS
+echo " OS:\t\t $OSV"
+
+# Kernel
+echo " Kernel:\t $kern"
+
+# Packages
+echo " Packages:\t $pkg"
+
+# Uptime
+echo " Uptime:\t $up"
+
+# Shell
+echo " Shell:\t\t $s \n"
