@@ -1,0 +1,30 @@
+#!/bin/sh 
+## OpenBSD specs program
+##
+
+# Manufacturer
+echo "Manufacturer:\t $(sysctl -n hw.vendor)"
+
+# Device model
+echo "Model:\t\t $(sysctl -n hw.product)"
+
+# CPU model
+echo "CPU:\t\t $(sysctl -n hw.model)" | sed 's/CPU //g;s/(TM)//g;s/(R)//g;s/@.*//g'
+
+# CPU temp
+echo "CPU temp:\t $(sysctl -n hw.sensors.cpu0.temp0 | sed 's/'.00'//g')"
+
+# Total RAM (MiB)
+echo "RAM:\t\t $(dc -e ''$(sysctl -n hw.physmem)d1048576/n'[MiB]p')"
+
+# OS
+echo "OS:\t\t $(uname -srm)"
+
+# Uptime
+echo "Uptime:\t\t $(uptime | sed ';s/,.*//;s/^.*up //;')"
+
+# Packages
+echo "Packages:\t $(pkg_info | wc -l | sed 's/[^0-9]*//g')"
+
+# Shell
+echo "Shell:\t\t" $SHELL | sed 's#/bin/##g'
