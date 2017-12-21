@@ -55,7 +55,7 @@ esac
 case $OS in
     Darwin)
 	tempmon=/Applications/TemperatureMonitor.app/Contents/MacOS/tempmonitor
-	temp=$(echo "$($tempmon -a -l | grep "A DIODE")" | sed 's/.*: //g;s/C/°C/;s/ //')
+	CPUtemp=$(echo "$($tempmon -a -l | grep "A DIODE")" | sed 's/.*: //g;s/C/°C/;s/ //')
 	;;
     OpenBSD)
 	CPUtemp=$(sysctl -n hw.sensors.cpu0.temp0 | sed 's/'.00'//')
