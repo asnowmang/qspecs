@@ -91,7 +91,7 @@ esac
 count="1"
 sto="0"
 p=$(df -k -l | wc -l | sed 's/ //g')
-until [[ $count = $p ]];
+until [ $count = $p ];
 do
     count=$(dc -e "$count"d1+p)
     part=$(df -k -l | awk '{ print $2 }' | sed -n "$count"p)
@@ -118,6 +118,9 @@ case $OS in
 	;;
     OpenBSD)
 	OSV=$(uname -srm)
+	;;
+    Linux)
+	OSV="Debian $(cat /etc/*_version)"
 	;;
 esac
 
