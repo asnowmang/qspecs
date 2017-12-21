@@ -63,6 +63,16 @@ case $OS in
 esac
 
 
+# GPU
+case $OS in
+    Darwin)
+    gpu=$(system_profiler SPDisplaysDataType | sed -n 's/^[ \t]*//;s/://;3p')
+    ;;
+    OpenBSD)
+    ;;
+esac
+
+
 # RAM
 case $OS in
     Darwin)
@@ -160,6 +170,9 @@ echo " CPU:\t\t $(echo $CPU | sed 's/CPU //;s/(TM)//;s/(R)//') $clock"
 
 # CPU temp
 echo " CPU Temp:\t $temp"
+
+# GPU model
+echo " GPU:\t\t $gpu"
 
 # RAM
 echo " RAM:\t\t $(dc -e "$RAM"d1024d*/n[MiB]p)"
