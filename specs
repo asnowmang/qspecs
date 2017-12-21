@@ -69,11 +69,15 @@ esac
 # GPU
 case $OS in
     Darwin)
-    gpu=$(system_profiler SPDisplaysDataType | sed -n 's/^[ \t]*//;s/://;s/ATI/ATi/;3p')
-    ;;
+	gpu=$(system_profiler SPDisplaysDataType | sed -n 's/^[ \t]*//;s/://;s/ATI/ATi/;3p')
+	;;
     OpenBSD)
-    ;;
+	;;
+    Linux)
+	gpu=$(lshw -C display 2>/dev/null | sed -n 's/.*\[\([^]]*\)\].*/\1/g;3p')
+	;;
 esac
+
 
 # GPU temp
 case $OS in
@@ -86,8 +90,6 @@ case $OS in
 	GPUtemp=$(sensors | awk '{ print $2 }' | sed -n 's/+//;3p')
 	;;
 esac
-
-		  
 
 
 # RAM
