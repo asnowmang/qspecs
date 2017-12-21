@@ -60,6 +60,8 @@ case $OS in
     OpenBSD)
 	CPUtemp=$(sysctl -n hw.sensors.cpu0.temp0 | sed 's/'.00'//')
 	;;
+    Linux)
+	CPUtemp=$(sensors | awk '{ print $2 }' | sed -n 's/+//;7p')
 esac
 
 
@@ -71,6 +73,20 @@ case $OS in
     OpenBSD)
     ;;
 esac
+
+# GPU temp
+case $OS in
+    Darwin)
+	GPUtemp=$(tempmon -a | sed -n 's/ /°/;7p')
+    ;;
+    OpenBSD)
+    ;;
+    Linux)
+	GPUtemp=$(sensors | awk '{ print $2 }' | sed -n 's/+//;3p')
+	;;
+esac
+
+		  
 
 
 # RAM
@@ -172,10 +188,13 @@ echo " Model:\t\t $model"
 echo " CPU:\t\t $(echo $CPU | sed 's/CPU //;s/(TM)//;s/(R)//') $clock"
 
 # CPU temp
-echo " CPU Temp:\t $temp"
+echo " CPU Temp:\t $CPUtemp"
 
 # GPU model
 echo " GPU:\t\t $gpu"
+
+# GPU temp
+echo " GPU Temp:\t $GPUtemp"
 
 # RAM
 echo " RAM:\t\t $(dc -e "$RAM"d1024d*/n[MiB]p)"
