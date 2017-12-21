@@ -5,7 +5,8 @@
 
 ## Currently supports OpenBSD and OS X
 
-
+RED='\033[0;31m'
+NC='\033[0m' # No Color
 
 # OS Detection
 OS=$(uname -s)
@@ -184,17 +185,11 @@ echo "\n Manufacturer:\t $man"
 # Model
 echo " Model:\t\t $model"
 
-# CPU model & clock
-echo " CPU:\t\t $(echo $CPU | sed 's/CPU //;s/(TM)//;s/(R)//') $clock"
+# CPU model, clock, and temp
+echo " CPU:\t\t $(echo $CPU | sed 's/CPU //;s/(TM)//;s/(R)//') $clock ${RED}$CPUtemp${NC}"
 
-# CPU temp
-echo " CPU Temp:\t $CPUtemp"
-
-# GPU model
-echo " GPU:\t\t $gpu"
-
-# GPU temp
-echo " GPU Temp:\t $GPUtemp"
+# GPU model and temp
+echo " GPU:\t\t $gpu ${RED}$GPUtemp${NC}"
 
 # RAM
 echo " RAM:\t\t $(dc -e "$RAM"d1024d*/n[MiB]p)"
