@@ -68,7 +68,7 @@ esac
 # GPU
 case $OS in
     Darwin)
-    gpu=$(system_profiler SPDisplaysDataType | sed -n 's/^[ \t]*//;s/://;3p')
+    gpu=$(system_profiler SPDisplaysDataType | sed -n 's/^[ \t]*//;s/://;s/ATI/ATi/;3p')
     ;;
     OpenBSD)
     ;;
