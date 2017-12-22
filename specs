@@ -1,12 +1,7 @@
 #! /bin/sh
 ## Version 0.1.3
-## This script is ISC licensed
-## asnowmang
-
 ## Currently supports OpenBSD and OS X
 
-RED='\033[0;31m'
-NC='\033[0m' # No Color
 
 # OS Detection
 OS=$(uname -s)
@@ -19,6 +14,8 @@ case $OS in
 	;;
     OpenBSD)
 	man=$(sysctl -n hw.vendor)
+	;;
+    Linux)
 	;;
 esac
 
@@ -47,7 +44,8 @@ case $OS in
 	CPU=$(sysctl -n hw.model)
 	;;
     Linux)
-	CPU=$(cat /proc/cpuinfo | sed 's/.*: //' | sed -n 1p)
+	CPU=$(cat /proc/cpuinfo | sed -n 's/^[^:]*: //;5p')
+	clock="@ 3500MHz"
 	;;
 esac
 
@@ -63,6 +61,7 @@ case $OS in
 	;;
     Linux)
 	CPUtemp=$(sensors | awk '{ print $2 }' | sed -n 's/+//;7p')
+	;;
 esac
 
 
@@ -83,9 +82,9 @@ esac
 case $OS in
     Darwin)
 	GPUtemp=$(tempmon -a | sed -n 's/ /°/;7p')
-    ;;
+	;;
     OpenBSD)
-    ;;
+	;;
     Linux)
 	GPUtemp=$(sensors | awk '{ print $2 }' | sed -n 's/+//;3p')
 	;;
@@ -166,6 +165,9 @@ case $OS in
     OpenBSD)
 	pkg=$(pkg_info | wc -l | sed 's/[^0-9]*//')
 	;;
+    Linux)
+	pkg=$(dpkg -l | wc -l)
+	;;
 esac
 
 
@@ -177,10 +179,12 @@ up=$(uptime | sed ';s/,.*//;s/^.*up //;')
 s="$(basename $SHELL)"
 
 
-
 ########
 # Output
- 
+# Temp colors
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
 # Manufacturer
 echo "\n Manufacturer:\t $man"
 
@@ -188,7 +192,7 @@ echo "\n Manufacturer:\t $man"
 echo " Model:\t\t $model"
 
 # CPU model, clock, and temp
-echo " CPU:\t\t $(echo $CPU | sed 's/CPU //;s/(TM)//;s/(R)//') $clock ${RED}$CPUtemp${NC}"
+echo " CPU:\t\t $(echo $CPU | sed 's/CPU //;s/(TM)//;s/(tm)//;s/(R)//;s/ APU with Radeon HD Graphics//') $clock ${RED}$CPUtemp${NC}"
 
 # GPU model and temp
 echo " GPU:\t\t $gpu ${RED}$GPUtemp${NC}"
