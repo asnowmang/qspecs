@@ -26,7 +26,8 @@ case $OS in
 	model=$(sysctl -n hw.model)
 	;;
     OpenBSD)
-	model=$(sysctl -n hw.product)
+	#	model=$(sysctl -n hw.product)
+	model=$(sysctl -n hw.version)
 	;;
     Linux)
 	model=$(cat /proc/cpuinfo | sed 's/.*: //' | sed -n 2p)
@@ -186,13 +187,13 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 # Manufacturer
-echo "\n Manufacturer:\t $man"
+echo "\n Manufacturer:\t $(echo $man | sed 's/LENOVO/Lenovo/')"
 
 # Model
 echo " Model:\t\t $model"
 
 # CPU model, clock, and temp
-echo " CPU:\t\t $(echo $CPU | sed 's/CPU //;s/(TM)//;s/(tm)//;s/(R)//;s/ APU with Radeon HD Graphics//') $clock ${RED}$CPUtemp${NC}"
+echo " CPU:\t\t $(echo $CPU | sed 's/CPU //;s/(TM)//;s/(tm)//;s/(R)//;s/ APU with Radeon HD Graphics//;s/Processor//') $clock ${RED}$CPUtemp${NC}"
 
 # GPU model and temp
 echo " GPU:\t\t $gpu ${RED}$GPUtemp${NC}"
