@@ -43,6 +43,7 @@ case $OS in
 	;;
     OpenBSD)
 	CPU=$(sysctl -n hw.model)
+	clock="@ 1500MHz"
 	;;
     Linux)
 	CPU=$(cat /proc/cpuinfo | sed -n 's/^[^:]*: //;5p')
@@ -58,7 +59,8 @@ case $OS in
 	CPUtemp=$(echo "$($tempmon -a -l | grep "A DIODE")" | sed 's/.*: //g;s/C/°C/;s/ //')
 	;;
     OpenBSD)
-	CPUtemp=$(sysctl -n hw.sensors.cpu0.temp0 | sed 's/'.00'//')
+	#	CPUtemp=$(sysctl -n hw.sensors.cpu0.temp0 | sed 's/'.00'//')
+	CPUtemp=$(sysctl -n hw.sensors.acpithinkpad0.temp0 | sed 's/'.00'//')
 	;;
     Linux)
 	CPUtemp=$(sensors | awk '{ print $2 }' | sed -n 's/+//;7p')
@@ -184,37 +186,43 @@ s="$(basename $SHELL)"
 # Output
 # Temp colors
 RED='\033[0;31m'
+ORANGE=
+YELLOW=
+GREEN='\033[0;32m'
+BBLUE='\033[1;34m'
+INDIGO=
+PURPLE='\033[1;35m'
 NC='\033[0m' # No Color
 
 # Manufacturer
-echo "\n Manufacturer:\t $(echo $man | sed 's/LENOVO/Lenovo/')"
+echo "${BBLUE}\n Manufacturer:\t ${NC} $(echo $man | sed 's/LENOVO/ Lenovo/')"
 
 # Model
-echo " Model:\t\t $model"
+echo " ${BBLUE}Model:\t\t${NC} $model"
 
 # CPU model, clock, and temp
-echo " CPU:\t\t $(echo $CPU | sed 's/CPU //;s/(TM)//;s/(tm)//;s/(R)//;s/ APU with Radeon HD Graphics//;s/Processor//') $clock ${RED}$CPUtemp${NC}"
+echo " ${BBLUE}CPU:\t\t${NC} $(echo $CPU | sed 's/CPU //;s/(TM)//;s/(tm)//;s/(R)//;s/ APU with Radeon HD Graphics//;s/ Processor//') $clock ${RED}$CPUtemp${NC}"
 
 # GPU model and temp
-echo " GPU:\t\t $gpu ${RED}$GPUtemp${NC}"
+echo "${BBLUE} GPU:\t\t${NC} $gpu ${RED}$GPUtemp${NC}"
 
 # RAM
-echo " RAM:\t\t $(dc -e "$RAM"d1024d*/n[MiB]p)"
+echo "${BBLUE} RAM:\t\t${NC} $(dc -e "$RAM"d1024d*/n[MiB]p)"
 
 # Storage
-echo " Storage:\t $sto"
+echo "${BBLUE} Storage:\t\t${NC} $sto"
 
 # OS
-echo " OS:\t\t $OSV"
+echo "${BBLUE} OS:\t\t${NC} $OSV"
 
 # Kernel
-echo " Kernel:\t $kern"
+echo "${BBLUE} Kernel:\t\t${NC} $kern"
 
 # Packages
-echo " Packages:\t $pkg"
+echo "${BBLUE} Packages:\t${NC} $pkg"
 
 # Uptime
-echo " Uptime:\t $up"
+echo "${BBLUE} Uptime:\t\t${NC} $up"
 
 # Shell
-echo " Shell:\t\t $s\n"
+echo "${BBLUE} Shell:\t\t${NC} $s\n"
