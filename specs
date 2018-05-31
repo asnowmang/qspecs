@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /usr/bin/env sh
 ## Version 0.1.3
 ## Currently supports OpenBSD and OS X
 
@@ -43,7 +43,9 @@ case $OS in
 	;;
     OpenBSD)
 	CPU=$(sysctl -n hw.model)
-	clock="@ 1500MHz"
+#        CPUtemp=$(sysctl -n hw.sensors.cpu0.temp0 | sed 's/'.00'//')
+        CPUtemp=$(sysctl -n hw.sensors.acpithinkpad0.temp0 | sed 's/'.00'//')
+	clock=$(sysctl -n hw.cpuspeed)MHz
 	;;
     Linux)
 	CPU=$(cat /proc/cpuinfo | sed -n 's/^[^:]*: //;5p')
@@ -74,6 +76,13 @@ case $OS in
 	gpu=$(system_profiler SPDisplaysDataType | sed -n 's/^[ \t]*//;s/://;s/ATI/ATi/;3p')
 	;;
     OpenBSD)
+#	if [ $USER -eq "root" ];
+#	then
+	   gpu=$(doas pcidump | awk -v OFS=' ' '{print $2, $3, $4, $5}' | awk NR==3)
+#	else
+#	   gpu="null"
+#	fi
+	   
 	;;
     Linux)
 	gpu=$(lshw -C display 2>/dev/null | sed -n 's/.*\[\([^]]*\)\].*/\1/g;3p')
@@ -175,11 +184,11 @@ esac
 
 
 # Uptime
-up=$(uptime | sed ';s/,.*//;s/^.*up //;')
+up=$(uptime | sed ';s/,.*//;s/^.*up //;s/^ //')
 
 
 # Shell
-s="$(basename $SHELL)"
+s=$(basename "$SHELL")
 
 
 ########
@@ -204,7 +213,7 @@ echo " ${BBLUE}Model:\t\t${NC} $model"
 echo " ${BBLUE}CPU:\t\t${NC} $(echo $CPU | sed 's/CPU //;s/(TM)//;s/(tm)//;s/(R)//;s/ APU with Radeon HD Graphics//;s/ Processor//') $clock ${RED}$CPUtemp${NC}"
 
 # GPU model and temp
-echo "${BBLUE} GPU:\t\t${NC} $gpu ${RED}$GPUtemp${NC}"
+echo "${BBLUE} GPU:\t\t${NC} $gpu ${RED}$GPUtemp${NC}" | sed 's/ATI/ATi/g'
 
 # RAM
 echo "${BBLUE} RAM:\t\t${NC} $(dc -e "$RAM"d1024d*/n[MiB]p)"
