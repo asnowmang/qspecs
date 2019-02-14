@@ -21,13 +21,14 @@ esac
 
 
 # Device model
+
 case $OS in
     Darwin)
 	model=$(sysctl -n hw.model)
 	;;
     OpenBSD)
 	#	model=$(sysctl -n hw.product)
-	model=$(sysctl -n hw.version)
+	model=$(sysctl -n hw.product)
 	;;
     Linux)
 	model=$(cat /proc/cpuinfo | sed 's/.*: //' | sed -n 2p)
@@ -120,11 +121,11 @@ esac
 # Storage
 count="1"
 sto="0"
-p=$(df -k -l | wc -l | sed 's/ //g')
+p=$(df -k | wc -l | sed 's/ //g')
 until [ $count = $p ];
 do
     count=$(dc -e "$count"d1+p)
-    part=$(df -k -l | awk '{ print $2 }' | sed -n "$count"p)
+    part=$(df -k | awk '{ print $2 }' | sed -n "$count"p)
     sto=$(dc -e "$sto"d"$part"+p)
 done
 t=$(echo $sto | wc -c | sed 's/ //g')
