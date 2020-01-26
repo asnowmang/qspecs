@@ -1,5 +1,5 @@
 #! /usr/bin/env sh
-## Version 0.1.3
+## Version 0.1.4
 ## Currently supports OpenBSD and OS X
 
 
@@ -26,8 +26,9 @@ case $OS in
 	model=$(sysctl -n hw.model)
 	;;
     OpenBSD)
-	#	model=$(sysctl -n hw.product)
-	model=$(sysctl -n hw.version)
+	model=$(sysctl -n hw.product)
+#	model=$(sysctl -n hw.version)
+#	model=$(sysctl -n hw.model)
 	;;
     Linux)
 	model=$(cat /proc/cpuinfo | sed 's/.*: //' | sed -n 2p)
@@ -43,8 +44,6 @@ case $OS in
 	;;
     OpenBSD)
 	CPU=$(sysctl -n hw.model)
-#        CPUtemp=$(sysctl -n hw.sensors.cpu0.temp0 | sed 's/'.00'//')
-        CPUtemp=$(sysctl -n hw.sensors.acpithinkpad0.temp0 | sed 's/'.00'//')
 	clock=$(sysctl -n hw.cpuspeed)MHz
 	;;
     Linux)
@@ -62,7 +61,8 @@ case $OS in
 	;;
     OpenBSD)
 	#	CPUtemp=$(sysctl -n hw.sensors.cpu0.temp0 | sed 's/'.00'//')
-	CPUtemp=$(sysctl -n hw.sensors.acpithinkpad0.temp0 | sed 's/'.00'//')
+#	CPUtemp=$(sysctl -n hw.sensors.acpithinkpad0.temp0 | sed 's/'.00'//')
+	CPUtemp=$(sysctl -n hw.sensors.km0.temp0)
 	;;
     Linux)
 	CPUtemp=$(sensors | awk '{ print $2 }' | sed -n 's/+//;7p')
@@ -78,7 +78,7 @@ case $OS in
     OpenBSD)
 #	if [ $USER -eq "root" ];
 #	then
-	   gpu=$(doas pcidump | awk -v OFS=' ' '{print $2, $3, $4, $5}' | awk NR==3)
+#	   gpu=$(doas pcidump | awk -v OFS=' ' '{print $2, $3, $4, $5}' | awk NR==3)
 #	else
 #	   gpu="null"
 #	fi
@@ -190,6 +190,10 @@ up=$(uptime | sed ';s/,.*//;s/^.*up //;s/^ //')
 # Shell
 s=$(basename "$SHELL")
 
+# UPS Est. Batt. Life
+battH=$(dc -e "$(sysctl -n hw.sensors.upd0.timedelta0 | awk '{ print $1 }') 3600/p")
+battM=$(dc -e "$(sysctl -n hw.sensors.upd0.timedelta0 | awk '{ print $1 }') 3600%60/p")
+#upsbatt=$(dc -e "2k$(sysctl -n hw.sensors.upd0.timedelta0 | awk '{ print $1 }') 3600%p60/p")
 
 ########
 # Output
@@ -204,34 +208,37 @@ PURPLE='\033[1;35m'
 NC='\033[0m' # No Color
 
 # Manufacturer
-echo "${BBLUE}\n Manufacturer:\t ${NC} $(echo $man | sed 's/LENOVO/ Lenovo/')"
+echo "${BBLUE}\n Manufacturer:\t${NC} $(echo $man | sed 's/LENOVO/ Lenovo/')"
 
 # Model
 echo " ${BBLUE}Model:\t\t${NC} $model"
 
 # CPU model, clock, and temp
-echo " ${BBLUE}CPU:\t\t${NC} $(echo $CPU | sed 's/CPU //;s/(TM)//;s/(tm)//;s/(R)//;s/ APU with Radeon HD Graphics//;s/ Processor//') $clock ${RED}$CPUtemp${NC}"
+echo " ${BBLUE}CPU:\t\t${NC} $(echo $CPU | sed 's/CPU //;s/(TM)//;s/(tm)//;s/(R)//;s/ APU with Radeon HD Graphics//;s/ Processor//;s/ SOC//') $clock ${RED}$CPUtemp${NC}"
 
 # GPU model and temp
-echo "${BBLUE} GPU:\t\t${NC} $gpu ${RED}$GPUtemp${NC}" | sed 's/ATI/ATi/g'
+#echo "${BBLUE} GPU:\t\t${NC} $gpu ${RED}$GPUtemp${NC}" | sed 's/ATI/ATi/g'
 
 # RAM
 echo "${BBLUE} RAM:\t\t${NC} $(dc -e "$RAM"d1024d*/n[MiB]p)"
 
 # Storage
-echo "${BBLUE} Storage:\t\t${NC} $sto"
+echo "${BBLUE} Storage:\t${NC} $sto"
 
 # OS
 echo "${BBLUE} OS:\t\t${NC} $OSV"
 
 # Kernel
-echo "${BBLUE} Kernel:\t\t${NC} $kern"
+echo "${BBLUE} Kernel:\t${NC} $kern"
 
 # Packages
 echo "${BBLUE} Packages:\t${NC} $pkg"
 
 # Uptime
-echo "${BBLUE} Uptime:\t\t${NC} $up"
+echo "${BBLUE} Uptime:\t${NC} $up"
 
 # Shell
-echo "${BBLUE} Shell:\t\t${NC} $s\n"
+echo "${BBLUE} Shell:\t\t${NC} $s"
+
+# UPS batt life estimate
+echo "${BBLUE} UPS:\t\t${NC} Online; ~"$battH"h "$battM"m remaining\n"
