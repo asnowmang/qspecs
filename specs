@@ -200,8 +200,8 @@ battM=$(dc -e "$(sysctl -n hw.sensors.upd0.timedelta0 | awk '{ print $1 }') 3600
 # Temp colors
 RED='\033[0;31m'
 ORANGE=
-YELLOW=
 GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
 BBLUE='\033[1;34m'
 INDIGO=
 PURPLE='\033[1;35m'
@@ -214,7 +214,7 @@ echo "${BBLUE}\n Manufacturer:\t${NC} $(echo $man | sed 's/LENOVO/ Lenovo/')"
 echo " ${BBLUE}Model:\t\t${NC} $model"
 
 # CPU model, clock, and temp
-echo " ${BBLUE}CPU:\t\t${NC} $(echo $CPU | sed 's/CPU //;s/(TM)//;s/(tm)//;s/(R)//;s/ APU with Radeon HD Graphics//;s/ Processor//;s/ SOC//') $clock ${RED}$CPUtemp${NC}"
+echo " ${BBLUE}CPU:\t\t${NC} $(echo $CPU | sed 's/CPU //;s/(TM)//;s/(tm)//;s/(R)//;s/ APU with Radeon HD Graphics//;s/ Processor//;s/ SOC//') $clock ${YELLOW}$CPUtemp${NC}"
 
 # GPU model and temp
 #echo "${BBLUE} GPU:\t\t${NC} $gpu ${RED}$GPUtemp${NC}" | sed 's/ATI/ATi/g'
