@@ -45,7 +45,7 @@ case $OS in
 	;;
     Linux)
 	CPU=$(cat /proc/cpuinfo | sed -n 's/^[^:]*: //;5p')
-	clock="@ 3500MHz"
+	clock="@ 1500MHz"
 	;;
 esac
 
@@ -192,7 +192,7 @@ echo "\n Manufacturer:\t $man"
 echo " Model:\t\t $model"
 
 # CPU model, clock, and temp
-echo " CPU:\t\t $(echo $CPU | sed 's/CPU //;s/(TM)//;s/(tm)//;s/(R)//;s/ APU with Radeon HD Graphics//') $clock ${RED}$CPUtemp${NC}"
+echo " CPU:\t\t $(echo $CPU | sed 's/CPU //;s/(TM)//;s/ Dual-Core Processor//;s/(tm)//;s/(R)//;s/ APU with Radeon HD Graphics//') $clock ${RED}$CPUtemp${NC}"
 
 # GPU model and temp
 echo " GPU:\t\t $gpu ${RED}$GPUtemp${NC}"
