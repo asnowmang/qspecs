@@ -185,41 +185,47 @@ s="$(basename $SHELL)"
 ########
 # Output
 # Font
+CYAN='\033[36m'
 RED='\033[0;31m'
+WHITE='\033[37m'
 YELLOW='\033[33m'
 NC='\033[0m' # No Color
 BOLD='\033[1m'
 UNBOLD='\033[0m'
 
+# Set column colors
+COL1COL=${CYAN}
+COL2COL=${WHITE}
+
 # Manufacturer
-echo "\n ${BOLD}Manufacturer:${UNBOLD}\t $man"
+echo "\n ${COL1COL}${BOLD}Manufacturer:${UNBOLD}${COL2COL}\t $man"
 
 # Model
-echo " ${BOLD}Model:${UNBOLD}\t\t $model"
+echo " ${COL1COL}${BOLD}Model:${UNBOLD}${COL2COL}\t\t $model"
 
 # CPU model, clock, and temp
-echo " ${BOLD}CPU:${UNBOLD}\t\t $(echo $CPU | sed 's/CPU //;s/(TM)//;s/ Dual-Core Processor//;s/(tm)//;s/(R)//;s/ APU with Radeon HD Graphics//') $clock ${RED}$CPUtemp${NC}"
+echo " ${COL1COL}${BOLD}CPU:${UNBOLD}${COL2COL}\t\t $(echo $CPU | sed 's/CPU //;s/(TM)//;s/ Dual-Core Processor//;s/(tm)//;s/(R)//;s/ APU with Radeon HD Graphics//') $clock ${RED}$CPUtemp${NC}"
 
 # GPU model and temp
-echo " ${BOLD}GPU:${UNBOLD}\t\t $gpu @ ${YELLOW}$GPUtemp${NC}"
+echo " ${COL1COL}${BOLD}GPU:${UNBOLD}${COL2COL}\t\t $gpu @ ${YELLOW}$GPUtemp${NC}"
 
 # RAM
-echo " ${BOLD}RAM:${UNBOLD}\t\t $(dc -e "$RAM"d1024d*/n[MiB]p)"
+echo " ${COL1COL}${BOLD}RAM:${UNBOLD}${COL2COL}\t\t $(dc -e "$RAM"d1024d*/n[MiB]p)"
 
 # Storage
-echo " ${BOLD}Storage:${UNBOLD}\t $sto"
+echo " ${COL1COL}${BOLD}Storage:${UNBOLD}${COL2COL}\t $sto"
 
 # OS
-echo " ${BOLD}OS:${UNBOLD}\t\t $OSV"
+echo " ${COL1COL}${BOLD}OS:${UNBOLD}${COL2COL}\t\t $OSV"
 
 # Kernel
-echo " ${BOLD}Kernel:${UNBOLD}\t $kern"
+echo " ${COL1COL}${BOLD}Kernel:${UNBOLD}${COL2COL}\t $kern"
 
 # Packages
-echo " ${BOLD}Packages:${UNBOLD}\t $pkg"
+echo " ${COL1COL}${BOLD}Packages:${UNBOLD}${COL2COL}\t $pkg"
 
 # Uptime
-echo " ${BOLD}Uptime:${UNBOLD}\t $up"
+echo " ${COL1COL}${BOLD}Uptime:${UNBOLD}${COL2COL}\t $up"
 
 # Shell
-echo " ${BOLD}Shell:${UNBOLD}\t\t $s\n"
+echo " ${COL1COL}${BOLD}Shell:${UNBOLD}${COL2COL}\t\t $s\n"
