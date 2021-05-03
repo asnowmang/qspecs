@@ -186,6 +186,7 @@ s="$(basename $SHELL)"
 # Output
 # Temp colors
 RED='\033[0;31m'
+YELLOW='\033[33m'
 NC='\033[0m' # No Color
 
 # Manufacturer
@@ -198,7 +199,7 @@ echo " Model:\t\t $model"
 echo " CPU:\t\t $(echo $CPU | sed 's/CPU //;s/(TM)//;s/ Dual-Core Processor//;s/(tm)//;s/(R)//;s/ APU with Radeon HD Graphics//') $clock ${RED}$CPUtemp${NC}"
 
 # GPU model and temp
-echo " GPU:\t\t $gpu @ ${RED}$GPUtemp${NC}"
+echo " GPU:\t\t $gpu @ ${YELLOW}$GPUtemp${NC}"
 
 # RAM
 echo " RAM:\t\t $(dc -e "$RAM"d1024d*/n[MiB]p)"
