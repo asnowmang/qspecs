@@ -184,40 +184,42 @@ s="$(basename $SHELL)"
 
 ########
 # Output
-# Temp colors
+# Font
 RED='\033[0;31m'
 YELLOW='\033[33m'
 NC='\033[0m' # No Color
+BOLD='\033[1m'
+UNBOLD='\033[0m'
 
 # Manufacturer
-echo "\n Manufacturer:\t $man"
+echo "\n ${BOLD}Manufacturer:${UNBOLD}\t $man"
 
 # Model
-echo " Model:\t\t $model"
+echo " ${BOLD}Model:${UNBOLD}\t\t $model"
 
 # CPU model, clock, and temp
-echo " CPU:\t\t $(echo $CPU | sed 's/CPU //;s/(TM)//;s/ Dual-Core Processor//;s/(tm)//;s/(R)//;s/ APU with Radeon HD Graphics//') $clock ${RED}$CPUtemp${NC}"
+echo " ${BOLD}CPU:${UNBOLD}\t\t $(echo $CPU | sed 's/CPU //;s/(TM)//;s/ Dual-Core Processor//;s/(tm)//;s/(R)//;s/ APU with Radeon HD Graphics//') $clock ${RED}$CPUtemp${NC}"
 
 # GPU model and temp
-echo " GPU:\t\t $gpu @ ${YELLOW}$GPUtemp${NC}"
+echo " ${BOLD}GPU:${UNBOLD}\t\t $gpu @ ${YELLOW}$GPUtemp${NC}"
 
 # RAM
-echo " RAM:\t\t $(dc -e "$RAM"d1024d*/n[MiB]p)"
+echo " ${BOLD}RAM:${UNBOLD}\t\t $(dc -e "$RAM"d1024d*/n[MiB]p)"
 
 # Storage
-echo " Storage:\t $sto"
+echo " ${BOLD}Storage:${UNBOLD}\t $sto"
 
 # OS
-echo " OS:\t\t $OSV"
+echo " ${BOLD}OS:${UNBOLD}\t\t $OSV"
 
 # Kernel
-echo " Kernel:\t $kern"
+echo " ${BOLD}Kernel:${UNBOLD}\t $kern"
 
 # Packages
-echo " Packages:\t $pkg"
+echo " ${BOLD}Packages:${UNBOLD}\t $pkg"
 
 # Uptime
-echo " Uptime:\t $up"
+echo " ${BOLD}Uptime:${UNBOLD}\t $up"
 
 # Shell
-echo " Shell:\t\t $s\n"
+echo " ${BOLD}Shell:${UNBOLD}\t\t $s\n"
