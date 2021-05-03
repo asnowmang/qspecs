@@ -47,7 +47,9 @@ case $OS in
 	;;
     Linux)
 	CPU=$(cat /proc/cpuinfo | sed -n 's/^[^:]*: //;5p')
-	clock="@ 1500MHz"
+	clock=$(cat /proc/cpuinfo | grep MHz | awk 'NR==1 {print $4}' | sed 's/\..*//')
+	# Just reads Core 0
+	# Change awk NR from NR==1 to NR<=threads for freq of each thread, need to figure out how to average them
 	;;
 esac
 
@@ -62,7 +64,6 @@ case $OS in
 	CPUtemp=$(sysctl -n hw.sensors.cpu0.temp0 | sed 's/'.00'//')
 	;;
     Linux)
-#	CPUtemp=$(sensors | awk '{ print $2 }' | sed -n 's/+//;7p')
 	CPUtemp=$(sensors | awk '{ print $2 }' | sed -n 's/+//;3p')
 	;;
 esac
@@ -205,7 +206,7 @@ echo "\n ${COL1COL}${BOLD}Manufacturer:${UNBOLD}${COL2COL}\t $man"
 echo " ${COL1COL}${BOLD}Model:${UNBOLD}${COL2COL}\t\t $model"
 
 # CPU model, clock, and temp
-echo " ${COL1COL}${BOLD}CPU:${UNBOLD}${COL2COL}\t\t $(echo $CPU | sed 's/CPU //;s/(TM)//;s/ Dual-Core Processor//;s/(tm)//;s/(R)//;s/ APU with Radeon HD Graphics//') $clock  ${YELLOW}$CPUtemp${NC}"
+echo " ${COL1COL}${BOLD}CPU:${UNBOLD}${COL2COL}\t\t $(echo $CPU | sed 's/CPU //;s/(TM)//;s/ Dual-Core Processor//;s/(tm)//;s/(R)//;s/ APU with Radeon HD Graphics//;s/ with Radeon Vega Graphics//') @ "$clock"MHz  ${YELLOW}$CPUtemp${NC}"
 
 # GPU model and temp
 echo " ${COL1COL}${BOLD}GPU:${UNBOLD}${COL2COL}\t\t $gpu  ${YELLOW}$GPUtemp${NC}"
