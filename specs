@@ -75,7 +75,8 @@ case $OS in
     OpenBSD)
 	;;
     Linux)
-	gpu=$(lshw -C display 2>/dev/null | sed -n 's/.*\[\([^]]*\)\].*/\1/g;3p')
+#	gpu=$(lshw -C display 2>/dev/null | sed -n 's/.*\[\([^]]*\)\].*/\1/g;3p')
+	gpu=$(lspci -v | grep Radeon | awk -F'[][]' '{print $2, $4}' | sed 's|AMD/ATI|ATi|')
 	;;
 esac
 
@@ -197,7 +198,7 @@ echo " Model:\t\t $model"
 echo " CPU:\t\t $(echo $CPU | sed 's/CPU //;s/(TM)//;s/ Dual-Core Processor//;s/(tm)//;s/(R)//;s/ APU with Radeon HD Graphics//') $clock ${RED}$CPUtemp${NC}"
 
 # GPU model and temp
-echo " GPU:\t\t $gpu ${RED}$GPUtemp${NC}"
+echo " GPU:\t\t $gpu @ ${RED}$GPUtemp${NC}"
 
 # RAM
 echo " RAM:\t\t $(dc -e "$RAM"d1024d*/n[MiB]p)"
