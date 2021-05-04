@@ -1,6 +1,6 @@
 #! /bin/sh
 ## Version 0.1.4
-## Currently supports OpenBSD and OS X
+## Currently supports OpenBSD and Linux
 
 
 # OS Detection
@@ -68,7 +68,7 @@ case $OS in
 	;;
 esac
 
-
+echo $CPU
 # GPU
 case $OS in
     Darwin)
@@ -78,7 +78,11 @@ case $OS in
 	;;
     Linux)
 #	gpu=$(lshw -C display 2>/dev/null | sed -n 's/.*\[\([^]]*\)\].*/\1/g;3p')
-	gpu=$(lspci -v | grep Radeon | awk -F'[][]' '{print $2, $4}' | sed 's|AMD/ATI|ATi|')
+	if [ "$CPU" = "AMD Ryzen 5 3400G with Radeon Vega Graphics" ]; then
+	    gpu='AMD Radeon RX Vega 11'
+	else
+            gpu=$(lspci -v | grep VGA | awk -F'[][]' '{print $2, $4}' | sed 's|AMD/ATI|ATi|')
+	fi
 	;;
 esac
 
